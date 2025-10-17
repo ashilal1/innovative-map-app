@@ -1,0 +1,65 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+#map {
+  height: 940px;
+  width: 100%;
+}
+
+#formContainer {
+  display: none;
+  
+  /*コンテイナーの位置を中央固定に*/
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  z-index: 1000;
+  width: 300px;       /* 横幅を調整 */
+  max-height: 400px;  /* 高さの上限を設定 */
+  overflow-y: auto;   /* 内容があふれたらスクロール */
+  font-size: 14px;    /* 全体の文字サイズ */
+}
+
+#formContainer input,
+#formContainer textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#addBtn {
+  background: #0bd;
+  color: white;
+}
+
+#cancelBtn {
+  background: #aaa;
+  color: white;
+}
