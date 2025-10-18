@@ -1,6 +1,6 @@
 // 初期値は適当に大阪周辺
-var latitude = 34.702485;
-var longitude = 135.495951;
+let latitude = 34.702485;
+let longitude = 135.495951;
 
 const DEFAULT_ZOOM = 13; // 初期ズームレベル
 const LOCATION_ZOOM = 16; // 現在地へ移動するときのズームレベル
