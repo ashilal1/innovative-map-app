@@ -2,7 +2,10 @@
 var latitude = 34.702485;
 var longitude = 135.495951;
 
-const map = L.map("map").setView([latitude, longitude], 13);
+const DEFAULT_ZOOM = 13; // 初期ズームレベル
+const LOCATION_ZOOM = 16; // 現在地へ移動するときのズームレベル
+
+const map = L.map("map").setView([latitude, longitude], DEFAULT_ZOOM);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors",
 }).addTo(map);
@@ -84,7 +87,7 @@ function successCallback(position) {
   console.log("Latitude: " + latitude + ", Longitude: " + longitude);
 
   // 地図の中心を現在地に設定
-  map.setView([latitude, longitude], 13);
+  map.setView([latitude, longitude], LOCATION_ZOOM);
 }
 
 // 取得に失敗した場合の処理
