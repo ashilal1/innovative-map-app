@@ -10,7 +10,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors",
 }).addTo(map);
 
-// webAPIを使って位置情報を取得ダイアログは自動で表示される
+// webAPIを使って位置情報を取得。ダイアログは自動で表示される
 if (navigator.geolocation) {
   navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
 } else {
