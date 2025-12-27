@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Questravel</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="images/icons/logo.svg" alt="Questravel">
+    </div>
+
+  <div class="header-right">
+    <nav class="nav-buttons"  data-href="html/map.html">
+      <button class="nav-btn active">
+        <img src="images/icons/map.svg">
+        <span>マップ</span>
+      </button>
+      <button class="nav-btn" data-href="html/showcase.html">
+        <img src="images/icons/showcase.svg">
+        <span>ショーケース</span>
+      </button>
+      <button class="nav-btn" data-href="html/home.html">
+        <img src="images/icons/home.svg">
+        <span>ホーム</span>
+      </button>
+      <button class="nav-btn" data-href="html/reels.html">
+        <img src="images/icons/reels.svg">
+        <span>リール</span>
+      </button>
+      <button class="nav-btn" data-href="html/quest.html">
+        <img src="images/icons/quest.svg">
+        <span>クエスト</span>
+      </button>
+      
+      <label class="user-chip" title="ユーザーアイコンを変更">
+        <img id="userAvatar" src="images/icons/user-default.svg" alt="user">
+        <input id="userAvatarInput" type="file" accept="image/*">
+      </label>
+    </nav>
+  </div>
+  
+</header>
+
+  <div id="map"></div>
+
+  <div id="overlay"></div>
+
+  <div id="formContainer">
+    <h3>マーカー情報を入力</h3>
+    <input type="text" id="titleInput" placeholder="タイトル">
+    <textarea id="commentInput" rows="3" placeholder="コメント"></textarea>
+    <label class="file-btn">ファイルを選択
+      <input type="file" id="imageInput" accept="image/*" hidden>
+    </label>
+    <img id="imagePreview" style="display:none;" />
+    <div>
+      <button id="addBtn">追加</button>
+      <button id="cancelBtn">キャンセル</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="JavaScript/script.js"></script>
+
+  
+
+</body>
+</html>
+
