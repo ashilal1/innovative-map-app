@@ -1,3 +1,13 @@
+// supabaseクライアントの初期化
+
+const SUPABASE_URL = "https://evbfkdrsoagjdqedftkx.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WhD1k6-3dR4sKUDPZbJX2A_IsC94t4K";
+
+const sb = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
 // 初期値は適当に大阪周辺
 let latitude = 34.702485;
 let longitude = 135.495951;
@@ -43,6 +53,29 @@ imageInput.addEventListener("change", () => {
 
 const addBtn = document.getElementById("addBtn");
 const cancelBtn = document.getElementById("cancelBtn");
+
+//追加ボタンの多重クリック防止用ロック
+let locked = false;
+
+async function onAddClick(e) {
+  e.preventDefault();
+
+  if (locked) return;
+  locked = true;
+  addBtn.disabled = true;
+
+ try {
+    await submitMarker();
+    closeForm();
+  } catch (err) {
+    locked = false;
+    addBtn.disabled = false;
+    throw err;
+  }
+}
+
+addBtn.addEventListener("click", onAddClick);
+
 cancelBtn.addEventListener("click", () => {
   overlay.style.display = "none";
   formContainer.style.display = "none";
@@ -53,7 +86,7 @@ cancelBtn.addEventListener("click", () => {
   imagePreview.src = "";
   imagePreview.style.display = "none";
 });
-
+//
 
 const myUserId = (() => {
   let id = localStorage.getItem("myUserId");
@@ -74,15 +107,9 @@ map.on("click", function (e) {
   formContainer.style.display = "block";
 });
 
-cancelBtn.addEventListener("click", () => {
-  overlay.style.display = "none";
-  formContainer.style.display = "none";
-  titleInput.value = "";
-  commentInput.value = "";
-  imageInput.value = "";
-});
-
 addBtn.addEventListener("click", async () => {
+  console.log("add clicked");
+
   if (!clickedLatLng) return;
 
   const title = titleInput.value.trim();
@@ -94,6 +121,8 @@ addBtn.addEventListener("click", async () => {
     return;
   }
 
+  // 画像は一旦「DBに base64」で入れるより、StorageへアップしてURL保存が基本
+  // ここではまず簡単に imageDataUrl をそのまま使う版（後でStorage版に変える）
   let imageDataUrl = "";
   if (file) {
     imageDataUrl = await new Promise((resolve, reject) => {
@@ -104,20 +133,40 @@ addBtn.addEventListener("click", async () => {
     });
   }
 
+  // ★ supabaseにINSERT（markersテーブルのカラム名に合わせる）
+  const { data, error } = await sb
+    .from("markers")
+    .insert([{
+      owner_id: myUserId,
+      lat: clickedLatLng.lat,
+      lng: clickedLatLng.lng,
+      title,
+      comment,
+      image_url: imageDataUrl, // 後でStorageのURLに置き換え推奨
+      likes: 0
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    alert("投稿に失敗しました");
+    return;
+  }
+
+  // ★ 返ってきた行を、あなたの表示形式に変換して地図へ
   const m = {
-    id: uid(),
-    ownerId: myUserId,
-    lat: clickedLatLng.lat,
-    lng: clickedLatLng.lng,
-    title,
-    comment,
-    imageDataUrl,
-    likes: 0,
+    id: data.id,
+    ownerId: data.owner_id,
+    lat: data.lat,
+    lng: data.lng,
+    title: data.title ?? "",
+    comment: data.comment ?? "",
+    imageDataUrl: data.image_url ?? "",
+    likes: data.likes ?? 0,
     liked: false
   };
 
-  markersData.push(m);
-  saveMarkers();
   addMarkerFromData(m);
 
   overlay.style.display = "none";
@@ -132,46 +181,59 @@ function addMarkerFromData(m) {
   const marker = L.marker([m.lat, m.lng]).addTo(map);
 
   marker.on("popupopen", () => {
-  const popupEl = marker.getPopup().getElement();
-  if (!popupEl) return;
+    const popupEl = marker.getPopup().getElement();
+    if (!popupEl) return;
 
-  popupEl.addEventListener("click", (ev) => {
-    const likeBtn = ev.target.closest(".like-btn");
-    const deleteBtn = ev.target.closest(".delete-btn");
+    popupEl.addEventListener("click", async (ev) => {
+      const likeBtn = ev.target.closest(".like-btn");
+      const deleteBtn = ev.target.closest(".delete-btn");
+      if (!likeBtn && !deleteBtn) return;
 
-    L.DomEvent.stop(ev);
+      L.DomEvent.stop(ev);
 
-    if (likeBtn) {
-      const id = likeBtn.dataset.id;
-      const target = markersData.find(x => x.id === id);
-      if (!target) return;
+      if (likeBtn) {
+        m.liked = !m.liked;
+        m.likes += m.liked ? 1 : -1;
+        if (m.likes < 0) m.likes = 0;
 
-      target.liked = !target.liked;
-      target.likes += target.liked ? 1 : -1;
-      if (target.likes < 0) target.likes = 0;
+        const { error } = await sb
+          .from("markers")
+          .update({ likes: m.likes })
+          .eq("id", m.id);
 
-      saveMarkers();
-      marker.setPopupContent(makePopupHTML(target));
-      return;
-    }
+        if (error) {
+          console.error(error);
+          alert("いいね更新に失敗しました");
+          m.liked = !m.liked;
+          m.likes += m.liked ? 1 : -1;
+          return;
+        }
 
-    if (deleteBtn) {
-      const id = deleteBtn.dataset.id;
-      const idx = markersData.findIndex(x => x.id === id);
-      if (idx === -1) return;
+        marker.setPopupContent(makePopupHTML(m));
+        return;
+      }
 
-      if (!confirm("このマーカーを削除しますか？")) return;
+      if (deleteBtn) {
+        if (!confirm("このマーカーを削除しますか？")) return;
 
-      markersData.splice(idx, 1);
-      saveMarkers();
-      map.removeLayer(marker);
-    }
+        const { error } = await sb
+          .from("markers")
+          .delete()
+          .eq("id", m.id);
+
+        if (error) {
+          console.error(error);
+          alert("削除に失敗しました");
+          return;
+        }
+
+        map.removeLayer(marker);
+      }
+    });
   });
-});
 
   marker.bindPopup(makePopupHTML(m));
 }
-
 
 // 取得に成功した場合の処理
 function successCallback(position) {
@@ -222,13 +284,12 @@ document.addEventListener("click", (e) => {
   location.href = href;
 });
 
-const markersData = loadMarkers();
 
-function uid() {
+/*function uid() {
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
-function saveMarkers() {
+//function saveMarkers() {
   localStorage.setItem("markersData", JSON.stringify(markersData));
 }
 
@@ -238,7 +299,7 @@ function loadMarkers() {
   } catch {
     return [];
   }
-}
+}*/
 
 function escapeHtml(s) {
   return String(s ?? "")
@@ -283,7 +344,35 @@ function makePopupHTML(m) {
   `;
 }
 
-markersData.forEach(m => addMarkerFromData(m));
+async function loadMarkersFromDB() {
+  const { data, error } = await sb
+    .from("markers")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    alert("マーカーの取得に失敗しました");
+    return;
+  }
+
+  data.forEach(row => {
+    addMarkerFromData({
+      id: row.id,
+      ownerId: row.owner_id,
+      lat: row.lat,
+      lng: row.lng,
+      title: row.title ?? "",
+      comment: row.comment ?? "",
+      imageDataUrl: row.image_url ?? "",
+      likes: row.likes ?? 0,
+      liked: false
+    });
+  });
+}
+
+loadMarkersFromDB();
+
 
 
 

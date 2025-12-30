@@ -1,0 +1,8 @@
+js/
+  config.js        // 定数（URL/KEY, zoomなど）
+  supabase.js      // Supabase client生成
+  state.js         // グローバル状態（clickedLatLng, locked, myUserId）
+  ui.js            // フォーム開閉/入力/プレビュー/ロック制御
+  markers.js       // DB insert/select, marker生成, popup, like/delete
+  map.js           // Leaflet初期化, 地図クリック, 位置情報
+  main.js          // 起動処理（イベント接続, loadMarkers呼び出し）
