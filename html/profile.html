@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ユーザー情報 - Questravel</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="logo">
+      <img src="../images/icons/logo.svg" alt="Questravel">
+    </div>
+
+    <div class="header-right">
+      <nav class="nav-buttons">
+        <button class="nav-btn" data-href="map.html">
+          <img src="../images/icons/map.svg">
+          <span>マップ</span>
+        </button>
+        <button class="nav-btn" data-href="showcase.html">
+          <img src="../images/icons/showcase.svg">
+          <span>ショーケース</span>
+        </button>
+        <button class="nav-btn" data-href="home.html">
+          <img src="../images/icons/home.svg">
+          <span>ホーム</span>
+        </button>
+        <button class="nav-btn" data-href="reels.html">
+          <img src="../images/icons/reels.svg">
+          <span>リール</span>
+        </button>
+        <button class="nav-btn" data-href="quest.html">
+          <img src="../images/icons/quest.svg">
+          <span>クエスト</span>
+        </button>
+        
+        <label class="user-chip active" title="ユーザーアイコンを変更">
+          <img id="userAvatar" src="../images/icons/user-default.svg" alt="user">
+          <input id="userAvatarInput" type="file" accept="image/*">
+        </label>
+      </nav>
+    </div>
+  </header>
+
+  <main class="profile-container">
+    <div class="profile-card">
+      <h1>ユーザー情報</h1>
+      
+      <div class="profile-avatar-section">
+        <img id="profileAvatar" src="../images/icons/user-default.svg" alt="プロフィール画像">
+        <label class="change-avatar-btn">
+          画像を変更
+          <input type="file" id="profileAvatarInput" accept="image/*" hidden>
+        </label>
+      </div>
+
+      <form id="profileForm">
+        <div class="form-group">
+          <label for="userName">ユーザー名</label>
+          <input type="text" id="userName" placeholder="ユーザー名を入力">
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail">メールアドレス</label>
+          <input type="email" id="userEmail" placeholder="メールアドレスを入力">
+        </div>
+
+        <div class="form-group">
+          <label for="userBio">自己紹介</label>
+          <textarea id="userBio" rows="4" placeholder="自己紹介を入力"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">保存</button>
+          <button type="button" class="btn-secondary" id="cancelBtn">キャンセル</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="../JavaScript/script.js"></script>
+</body>
+</html>

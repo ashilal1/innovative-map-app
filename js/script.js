@@ -1,12 +1,9 @@
 // supabaseクライアントの初期化
 
-const SUPABASE_URL = "https://evbfkdrsoagjdqedftkx.supabase.co";
-const SUPABASE_KEY = "sb_publishable_WhD1k6-3dR4sKUDPZbJX2A_IsC94t4K";
+const SUPABASE_URL = ENV.fetch("SUPABASE_URL");
+const SUPABASE_KEY = ENV.fetch("SUPABASE_KEY");
 
-const sb = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 初期値は適当に大阪周辺
 let latitude = 34.702485;
@@ -64,7 +61,7 @@ async function onAddClick(e) {
   locked = true;
   addBtn.disabled = true;
 
- try {
+  try {
     await submitMarker();
     closeForm();
   } catch (err) {
@@ -97,11 +94,10 @@ const myUserId = (() => {
   return id;
 })();
 
-
 map.on("click", function (e) {
   const t = e.originalEvent?.target;
   if (t && (t.closest(".leaflet-popup") || t.closest("#formContainer"))) return;
-  
+
   clickedLatLng = e.latlng;
   overlay.style.display = "block";
   formContainer.style.display = "block";
@@ -136,15 +132,17 @@ addBtn.addEventListener("click", async () => {
   // ★ supabaseにINSERT（markersテーブルのカラム名に合わせる）
   const { data, error } = await sb
     .from("markers")
-    .insert([{
-      owner_id: myUserId,
-      lat: clickedLatLng.lat,
-      lng: clickedLatLng.lng,
-      title,
-      comment,
-      image_url: imageDataUrl, // 後でStorageのURLに置き換え推奨
-      likes: 0
-    }])
+    .insert([
+      {
+        owner_id: myUserId,
+        lat: clickedLatLng.lat,
+        lng: clickedLatLng.lng,
+        title,
+        comment,
+        image_url: imageDataUrl, // 後でStorageのURLに置き換え推奨
+        likes: 0,
+      },
+    ])
     .select()
     .single();
 
@@ -164,7 +162,7 @@ addBtn.addEventListener("click", async () => {
     comment: data.comment ?? "",
     imageDataUrl: data.image_url ?? "",
     likes: data.likes ?? 0,
-    liked: false
+    liked: false,
   };
 
   addMarkerFromData(m);
@@ -175,7 +173,6 @@ addBtn.addEventListener("click", async () => {
   commentInput.value = "";
   imageInput.value = "";
 });
-
 
 function addMarkerFromData(m) {
   const marker = L.marker([m.lat, m.lng]).addTo(map);
@@ -216,10 +213,7 @@ function addMarkerFromData(m) {
       if (deleteBtn) {
         if (!confirm("このマーカーを削除しますか？")) return;
 
-        const { error } = await sb
-          .from("markers")
-          .delete()
-          .eq("id", m.id);
+        const { error } = await sb.from("markers").delete().eq("id", m.id);
 
         if (error) {
           console.error(error);
@@ -262,7 +256,6 @@ function errorCallback(error) {
   alert(errorMessage);
 }
 
-
 //選んだ画像をユーザーアイコンに反映
 const userAvatarInput = document.getElementById("userAvatarInput");
 const userAvatar = document.getElementById("userAvatar");
@@ -279,11 +272,10 @@ userAvatarInput.addEventListener("change", (e) => {
 document.addEventListener("click", (e) => {
   const btn = e.target.closest(".nav-btn");
   if (!btn) return;
-  const href = btn.dataset.href || btn.closest('.nav-buttons')?.dataset.href;
+  const href = btn.dataset.href || btn.closest(".nav-buttons")?.dataset.href;
   if (!href) return;
   location.href = href;
 });
-
 
 /*function uid() {
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -315,9 +307,8 @@ function makePopupHTML(m) {
   const comment = escapeHtml(m.comment);
 
   const imageHTML = m.imageDataUrl
-  ? `<img class="popup-img js-zoom-img" src="${m.imageDataUrl}" data-src="${m.imageDataUrl}" alt="">`
-  : "";
-
+    ? `<img class="popup-img js-zoom-img" src="${m.imageDataUrl}" data-src="${m.imageDataUrl}" alt="">`
+    : "";
 
   const heart = m.liked ? "♥" : "♡";
   const likedClass = m.liked ? "is-liked" : "";
@@ -356,7 +347,7 @@ async function loadMarkersFromDB() {
     return;
   }
 
-  data.forEach(row => {
+  data.forEach((row) => {
     addMarkerFromData({
       id: row.id,
       ownerId: row.owner_id,
@@ -366,13 +357,9 @@ async function loadMarkersFromDB() {
       comment: row.comment ?? "",
       imageDataUrl: row.image_url ?? "",
       likes: row.likes ?? 0,
-      liked: false
+      liked: false,
     });
   });
 }
 
 loadMarkersFromDB();
-
-
-
-

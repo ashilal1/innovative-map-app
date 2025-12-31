@@ -1,5 +1,5 @@
-const SUPABASE_URL = "https://evbfkdrsoagjdqedftkx.supabase.co";
-const SUPABASE_KEY = "sb_publishable_WhD1k6-3dR4sKUDPZbJX2A_IsC94t4K";
+const SUPABASE_URL = ENV.fetch("SUPABASE_URL");
+const SUPABASE_KEY = ENV.fetch("SUPABASE_KEY");
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -180,7 +180,10 @@ function addMarkerFromData(m) {
         m.likes += m.liked ? 1 : -1;
         if (m.likes < 0) m.likes = 0;
 
-        const { error } = await sb.from("markers").update({ likes: m.likes }).eq("id", m.id);
+        const { error } = await sb
+          .from("markers")
+          .update({ likes: m.likes })
+          .eq("id", m.id);
 
         if (error) {
           console.error(error);
@@ -275,7 +278,9 @@ function makePopupHTML(m) {
   const likedClass = m.liked ? "is-liked" : "";
 
   const deleteBtn =
-    m.ownerId === myUserId ? `<button class="delete-btn" data-id="${m.id}">削除</button>` : "";
+    m.ownerId === myUserId
+      ? `<button class="delete-btn" data-id="${m.id}">削除</button>`
+      : "";
 
   return `
     <div class="popup">
@@ -295,7 +300,10 @@ function makePopupHTML(m) {
 }
 
 async function loadMarkersFromDB() {
-  const { data, error } = await sb.from("markers").select("*").order("created_at", { ascending: true });
+  const { data, error } = await sb
+    .from("markers")
+    .select("*")
+    .order("created_at", { ascending: true });
 
   if (error) {
     console.error(error);
