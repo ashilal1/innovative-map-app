@@ -1,18 +1,16 @@
 // supabaseクライアントの初期化
+import { sb } from "./supabase.js";
+import {
+  DEFAULT_LAT,
+  DEFAULT_LNG,
+  DEFAULT_ZOOM,
+  LOCATION_ZOOM,
+} from "./config.js";
 
 const SUPABASE_URL = ENV.fetch("SUPABASE_URL");
 const SUPABASE_KEY = ENV.fetch("SUPABASE_KEY");
 
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// 初期値は適当に大阪周辺
-let latitude = 34.702485;
-let longitude = 135.495951;
-
-const DEFAULT_ZOOM = 13; // 初期ズームレベル
-const LOCATION_ZOOM = 16; // 現在地へ移動するときのズームレベル
-
-const map = L.map("map").setView([latitude, longitude], DEFAULT_ZOOM);
+const map = L.map("map").setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors",
 }).addTo(map);
