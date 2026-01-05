@@ -1,0 +1,16 @@
+# Gemini Code Assist の動作設定
+have_fun: false
+code_review:
+  comment_severity_threshold: LOW
+
+  max_review_comments: -1
+
+pull_request_opened:
+  help: true
+  summary: true
+  code_review: true
+# レビュー対象外にしたいファイルがあればかく（基本的にはgitignoreにあるものは無視されるらしい）
+# ignore_patterns:
+#   - "dist/**"
+#   - "node_modules/**"
+#   - "*.min.js"
