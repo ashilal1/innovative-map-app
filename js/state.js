@@ -2,6 +2,7 @@ export const state = {
   clickedLatLng: null,
   locked: false,
   myUserId: null,
+  activePinId: null,
 };
 
 export function initUserId() {

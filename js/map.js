@@ -3,7 +3,9 @@ import { openForm } from "./ui.js";
 
 /* Leaflet map 初期化 */
 export function initMap() {
-  const map = L.map("map").setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
+  const map = L.map("map", {
+    closePopupOnClick: false
+  }).setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
@@ -16,7 +18,7 @@ export function initMap() {
 export function setupMapClick(map) {
   map.on("click", (e) => {
     const t = e.originalEvent?.target;
-    if (t && (t.closest(".leaflet-popup") || t.closest("#formContainer"))) return;
+    if (t && t.closest(".leaflet-popup")) return;
 
     openForm(e.latlng);
   });

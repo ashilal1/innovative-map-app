@@ -1,50 +1,108 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <title>Questravel</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/style.css">
+
+  <div id="authModal">
+    <div class="auth-modal-content">
+      <button id="closeAuth" type="button">×</button>
+
+      <div id="authWelcomeView">
+        <h2>はじめよう</h2>
+        <p>冒険を記録するためにアカウントを作成しよう</p>
+
+        <div class="auth-steps">
+          <span class="step-dot active" id="stepDot1"></span>
+          <span class="step-dot" id="stepDot2"></span>
+        </div>
+
+        <div id="authStep1" class="auth-step">
+          <input id="emailInput" type="email" placeholder="メールアドレス">
+          <input id="passwordInput" type="password" placeholder="パスワード">
+          <button id="toStep2Btn" type="button">次へ</button>
+          <button id="signInBtn" type="button" class="sub-btn">ログイン</button>
+        </div>
+
+        <div id="authStep2" class="auth-step" style="display:none;">
+          <input id="usernameInput" type="text" placeholder="ユーザーネーム">
+          <input id="bioInput" type="text" placeholder="一言あいさつ">
+          <label class="avatar-upload">
+            アイコン画像を選ぶ
+            <input id="avatarInput" type="file" accept="image/*" hidden>
+          </label>
+          <img id="avatarPreview" style="display:none;" alt="avatar preview">
+          <div class="auth-step-buttons">
+            <button id="backStep1Btn" type="button" class="sub-btn">戻る</button>
+            <button id="signUpBtn" type="button">登録して始める</button>
+          </div>
+        </div>
+
+        <div id="authStatus">未ログイン</div>
+      </div>
+
+      <div id="profileView" style="display:none;">
+        <div class="profile-card">
+          <img id="profileAvatar" src="images/icons/user-default.svg" alt="profile avatar">
+          <h3 id="profileUsername">ゲスト</h3>
+          <p id="profileBio">よろしくお願いします</p>
+          <p id="profileEmail">-</p>
+
+          <label class="avatar-upload">
+            アイコン画像を変更
+            <input id="profileAvatarInput" type="file" accept="image/*" hidden>
+          </label>
+          <input id="profileUsernameInput" type="text" placeholder="ユーザーネームを変更">
+          <input id="profileBioInput" type="text" placeholder="一言あいさつを変更">
+
+          <button id="saveProfileBtn" type="button">プロフィールを保存</button>
+          <button id="signOutBtn" type="button" class="sub-btn">ログアウト</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </head>
 
 <body>
-  <header class="app-header">
+  <header class="app-sidebar">
     <div class="logo">
       <img src="images/icons/logo.svg" alt="Questravel">
     </div>
 
-  <div class="header-right">
-    <nav class="nav-buttons"  data-href="html/map.html">
-      <button class="nav-btn active">
-        <img src="images/icons/map.svg">
-        <span>マップ</span>
-      </button>
-      <button class="nav-btn" data-href="html/showcase.html">
-        <img src="images/icons/showcase.svg">
-        <span>ショーケース</span>
-      </button>
-      <button class="nav-btn" data-href="html/home.html">
-        <img src="images/icons/home.svg">
-        <span>ホーム</span>
-      </button>
-      <button class="nav-btn" data-href="html/reels.html">
-        <img src="images/icons/reels.svg">
-        <span>リール</span>
-      </button>
-      <button class="nav-btn" data-href="html/quest.html">
-        <img src="images/icons/quest.svg">
-        <span>クエスト</span>
-      </button>
-      
-      <label class="user-chip" title="ユーザーアイコンを変更">
-        <img id="userAvatar" src="images/icons/user-default.svg" alt="user">
-        <input id="userAvatarInput" type="file" accept="image/*">
-      </label>
-    </nav>
-  </div>
-  
-</header>
+    <div class="sidebar-center">
+      <nav class="nav-buttons">
+        <button class="nav-btn active" data-href="map.html">
+          <img src="images/icons/pin.svg">
+          <span class="nav-text active">マップ</span>
+        </button>
+        <button class="nav-btn" data-href="html/showcase.html">
+          <img src="images/icons/gallery.svg">
+          <span class="nav-text">ショーケース</span>
+        </button>
+        <button class="nav-btn" data-href="html/home.html">
+          <img src="images/icons/home-2.svg">
+          <span class="nav-text">ホーム</span>
+        </button>
+        <button class="nav-btn" data-href="html/reels.html">
+          <img src="images/icons/theaters.svg">
+          <span class="nav-text">リール</span>
+        </button>
+        <button class="nav-btn" data-href="html/quest.html">
+          <img src="images/icons/checklist.svg">
+          <span class="nav-text">クエスト</span>
+        </button>
+        <button class="nav-btn" id="userprofiles">
+          <img id="userAvatar" src="images/icons/user-default.svg" alt="user">
+          <span id="userProfileText" class="nav-text">ゲスト</span>
+        </button>
+      </nav>
+    </div>
+
+  </header>
 
   <div id="map"></div>
 
@@ -64,11 +122,16 @@
     </div>
   </div>
 
+
+  </div>
+
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script type="module" src="js/main.js"></script>
   <!-- import ... from "./ui.js" みたいな ES Modules 構文はmodule として読み込まれた JS だけが使えるらしい -->
-  
+
 
 </body>
-</html>
 
+</html>

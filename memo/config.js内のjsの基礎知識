@@ -1,0 +1,28 @@
+config.js内のjsの基礎知識
+
+設定だけを集めたファイル
+処理は書かない！変わる可能性のある値だけ書きこむ
+
+supabaseの接続情報
+地図の初期位置
+ズーム倍率
+
+js基礎知識
+1.
+const A = 10;
+A = 20; // ❌ エラー
+const　再代入できない変数、設定値、定数に使う
+let　再代入可能な変数
+
+2.
+export const DEFAULT_ZOOM = 13;
+exportとは　この変数をほかのjsファイルからでも使えるようにする
+
+別ファイルで使うときは　import  { DEFAULT_ZOOM } from ".config.js";
+このように書けばコピペせずに使え、変更箇所を減らせる
+
+よくあるエラーとミス
+Cannot find module　ファイル名ミス、パスミス、拡張子忘れ
+Cannot use import statement outside a module　<script type="module" src="...js"></script>をつけてない
+Failed to load module script　httpサーバーじゃない、MIME Type問題
+参考リンク　https://runebook.dev/ja/docs/http/basics_of_http/mime_types

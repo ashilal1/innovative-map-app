@@ -1,0 +1,16 @@
+supabase内のjs基礎知識
+
+js基礎知識
+
+1.
+importはコピーじゃない、あくまで元ファイルから読み取り参照してるだけ!!つまり、import先からは書き換え不可！
+
+2.
+windowとは、ブラウザ全体のこと（試しに、F12キー→consoleにwindow === this を入力→trueが返ってくる）ブラウザに最初からある グローバルオブジェクト 、htmlで読み込んだライブラリは大体ここに生える！
+
+window.supabseがなぜあるのか？
+htmlに
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+を記述することで、supabaseがhtmlで読み込んだライブラリとして利用できるようになり、そのルートはwindowになる。よって、window.supabaseが使えるようになる
+
+createClientとは、Supabase公式が用意した関数でSupabaseサーバーと通信するための窓口を作る。urlとkyeを登録する

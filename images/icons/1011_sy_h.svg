@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <style>
+      .a {
+        fill: none;
+        stroke: #231815;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <title>1011_sy_h</title>
+  <path class="a" d="M29.42,14C26,14,24.63,16.82,24,18.25,23.37,16.82,22,14,18.58,14c-3.93,0-5.93,3.79-5.53,7.23.35,3,2.49,5.89,4.5,8A32.2,32.2,0,0,0,24,34a32.2,32.2,0,0,0,6.45-4.79c2-2.09,4.15-5,4.5-8C35.35,17.79,33.35,14,29.42,14Z"/>
+</svg>
