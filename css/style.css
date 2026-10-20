@@ -880,3 +880,8 @@ button {
   object-fit: cover;
   display: block;
 }
+
+/* ズームに応じたPinサイズはJavaScriptで制御 */
+.custom-pin .pin-img-wrap, .custom-pin .pin-img-circle {
+  transition: width 180ms ease, height 180ms ease, border-width 180ms ease;
+}

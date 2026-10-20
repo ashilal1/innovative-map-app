@@ -2,20 +2,30 @@ import { sb } from "./supabase.js";
 import { state } from "./state.js";
 import { ui } from "./ui.js";
 
-function createPinIcon(imageUrl) {
+function getPinSize(zoom, likes = 0) {
+  const base = 20 + Math.max(0, Math.min(1, (zoom - 5) / 11)) * 50;
+  const popularity = Math.min(40, Math.log10(Math.max(0, likes) + 1) * 15);
+  return Math.round(base + popularity);
+}
+
+function createPinIcon(imageUrl, zoom = 13, likes = 0) {
+  const size = getPinSize(zoom, likes);
+  const safeUrl = escapeHtml(imageUrl || "images/icons/pin-default.png");
   return L.divIcon({
     className: "custom-pin",
-    html: `
-      <div class="pin-img-wrap">
-        <div class="pin-img-circle">
-          <img src="${imageUrl || "images/icons/pin-default.png"}" />
-        </div>
+    html: `<div class="pin-img-wrap" style="width:${size}px;height:${size}px">
+      <div class="pin-img-circle" style="width:${size}px;height:${size}px;border-width:${Math.max(2, Math.round(size / 10))}px">
+        <img src="${safeUrl}" alt="" />
       </div>
-    `,
-    iconSize: [56, 64],
-    iconAnchor: [24, 24],
-    popupAnchor: [0, 0]
+    </div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2]
   });
+}
+
+function getTotalLikes(posts) {
+  return posts.reduce((sum, post) => sum + (Number(post.likes) || 0), 0);
 }
 
 function escapeHtml(s) {
@@ -196,6 +206,7 @@ async function rerenderPopup(marker, pin, postsRef, indexRef) {
     indexRef.value = postsRef.value.length - 1;
   }
 
+  marker.setIcon(createPinIcon(postsRef.value[0]?.image_url, marker._map?.getZoom() ?? 13, getTotalLikes(postsRef.value)));
   marker.setPopupContent(makePopupHTML(pin, postsRef.value, indexRef.value, state.myUserId));
   marker.openPopup();
 }
@@ -328,7 +339,7 @@ function attachPopupEvents(map, marker, pin, postsRef, indexRef) {
 
       if (prevBtn && postsRef.value.length > 1) {
         indexRef.value = (indexRef.value - 1 + postsRef.value.length) % postsRef.value.length;
-        marker.setIcon(createPinIcon(postsRef.value[0]?.image_url));
+        marker.setIcon(createPinIcon(postsRef.value[0]?.image_url, map.getZoom(), getTotalLikes(postsRef.value)));
 
         marker.setPopupContent(makePopupHTML(pin, postsRef.value, indexRef.value, state.myUserId));
         marker.openPopup();
@@ -337,7 +348,7 @@ function attachPopupEvents(map, marker, pin, postsRef, indexRef) {
 
       if (nextBtn && postsRef.value.length > 1) {
         indexRef.value = (indexRef.value + 1) % postsRef.value.length;
-        marker.setIcon(createPinIcon(postsRef.value[0]?.image_url));
+        marker.setIcon(createPinIcon(postsRef.value[0]?.image_url, map.getZoom(), getTotalLikes(postsRef.value)));
 
         marker.setPopupContent(makePopupHTML(pin, postsRef.value, indexRef.value, state.myUserId));
         marker.openPopup();
@@ -385,10 +396,16 @@ function attachPopupEvents(map, marker, pin, postsRef, indexRef) {
 
 export function addPinFromData(map, pin) {
   const marker = L.marker([pin.lat, pin.lng], {
-    icon: createPinIcon()
+    icon: createPinIcon(null, map.getZoom())
   }).addTo(map);
   const postsRef = { value: [] };
   const indexRef = { value: 0 };
+
+  const refreshSize = () => marker.setIcon(createPinIcon(
+    postsRef.value[0]?.image_url, map.getZoom(), getTotalLikes(postsRef.value)
+  ));
+  map.on("zoomend", refreshSize);
+  marker.on("remove", () => map.off("zoomend", refreshSize));
 
   marker.bindPopup(makePopupHTML(pin, [], 0, state.myUserId), {
     autoClose: false,
@@ -399,7 +416,7 @@ export function addPinFromData(map, pin) {
     try {
       postsRef.value = await fetchPosts(pin.id, state.myUserId);
       indexRef.value = 0;
-      marker.setIcon(createPinIcon(postsRef.value[0]?.image_url));
+      marker.setIcon(createPinIcon(postsRef.value[0]?.image_url, map.getZoom(), getTotalLikes(postsRef.value)));
       marker.setPopupContent(makePopupHTML(pin, postsRef.value, indexRef.value, state.myUserId));
       marker.openPopup();
     } catch (error) {
@@ -411,6 +428,13 @@ export function addPinFromData(map, pin) {
   marker.on("popupopen", () => {
     attachPopupEvents(map, marker, pin, postsRef, indexRef);
   });
+
+  // 初回表示時にも画像といいね数を反映
+  fetchPosts(pin.id, state.myUserId).then((posts) => {
+    postsRef.value = posts;
+    refreshSize();
+  }).catch((error) => console.error("ピンの初期情報取得に失敗", error));
+  return marker;
 }
 
 export async function submitMarker(map, { latlng, title, comment, file }) {
